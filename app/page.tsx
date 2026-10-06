@@ -13,6 +13,7 @@ import { TripRecapDrawer } from "@/components/TripRecapDrawer";
 import { CuteCompanion } from "@/components/CuteCompanion";
 import { TapDuelModal } from "@/components/TapDuelModal";
 import { DayPickupCard } from "@/components/DayPickupCard";
+import { SplashScreen } from "@/components/SplashScreen";
 import {
   Plus,
   Check,
@@ -47,6 +48,7 @@ export default function HomePage() {
 
   const [addDefaultDayId, setAddDefaultDayId] = useState("day-1");
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isSplashVisible, setIsSplashVisible] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Load from URL or LocalStorage
@@ -425,6 +427,10 @@ export default function HomePage() {
     : [];
 
   const weather = getJogjaHeatAdvisory();
+  if (isSplashVisible) {
+    return <SplashScreen onComplete={() => setIsSplashVisible(false)} />;
+  }
+
   return (
     <main className="min-h-screen flex flex-col bg-background pb-12">
       {/* Sticky Top Header */}

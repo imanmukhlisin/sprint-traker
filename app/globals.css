@@ -258,6 +258,58 @@
   transform: scale(0.96);
 }
 
+@keyframes splash-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splash-mascot {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-11px) rotate(2deg); }
+}
+
+@keyframes splash-sparkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8) rotate(0); }
+  50% { opacity: 1; transform: scale(1.16) rotate(16deg); }
+}
+
+@keyframes splash-route {
+  from { left: 6%; }
+  to { left: 89%; }
+}
+
+.splash-screen {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.9) 0 6%, transparent 24%),
+    radial-gradient(circle at 86% 72%, rgba(255, 211, 228, 0.9) 0 4%, transparent 22%),
+    linear-gradient(145deg, #e8ffee 0%, #f7fff9 50%, #fff0f6 100%);
+  transition: opacity 360ms ease, transform 360ms ease;
+}
+
+.splash-screen--leaving { opacity: 0; transform: scale(1.015); }
+.animate-splash-enter { animation: splash-enter 520ms ease both; }
+.animate-splash-enter-delay { animation: splash-enter 520ms 100ms ease both; }
+.animate-splash-enter-delay-2 { animation: splash-enter 520ms 180ms ease both; }
+.animate-splash-enter-delay-3 { animation: splash-enter 520ms 260ms ease both; }
+.animate-splash-mascot { animation: splash-mascot 2.4s ease-in-out infinite; }
+.animate-splash-sparkle { animation: splash-sparkle 1.7s ease-in-out infinite; }
+.animate-splash-sparkle-delayed { animation: splash-sparkle 1.7s 600ms ease-in-out infinite; }
+
+.splash-mochi::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border-radius: 42%;
+  border: 1px solid rgba(255, 45, 120, 0.09);
+  pointer-events: none;
+}
+
+.splash-route-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  animation: splash-route 1.35s ease-in-out infinite alternate;
+}
+
 .memory-card {
   perspective: 720px;
   border: 0;
