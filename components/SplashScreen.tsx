@@ -31,7 +31,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         <div className="flex w-full items-center justify-between animate-splash-enter">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/70 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-primary font-space">
             <span className="h-1.5 w-1.5 rounded-full bg-[#00e676]" />
-            Date mode on
+            Itinerary siap
           </div>
           <button
             type="button"
@@ -61,19 +61,19 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           </div>
 
           <p className="mb-2 animate-splash-enter-delay font-space text-xs font-bold uppercase tracking-[0.18em] text-primary">
-            Jogja date itinerary
+            Rencana perjalanan
           </p>
           <h1 className="animate-splash-enter-delay-2 font-sora text-[2rem] font-black leading-none tracking-tight text-text-main">
             Tata Sprint<br />Treker
           </h1>
           <p className="mt-4 max-w-[260px] animate-splash-enter-delay-3 font-inter text-sm leading-relaxed text-text-muted">
-            Satu perjalanan kecil, banyak memori manis berdua.
+            Semua rencana hari ini tersusun dalam satu tempat.
           </p>
         </section>
 
         <div className="w-full animate-splash-enter-delay-3">
           <div className="mb-5 flex items-center justify-between px-2 text-[11px] font-semibold text-text-muted font-space">
-            <span>Menyiapkan rencana jalan</span>
+            <span>Menyiapkan jadwal</span>
             <span className="text-primary">siap</span>
           </div>
           <div className="splash-route relative mb-6 h-1.5 rounded-full bg-white/85">
@@ -86,7 +86,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             onClick={finish}
             className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary font-sora text-sm font-bold text-white shadow-[0_10px_20px_rgba(255,45,120,0.22)] transition-transform hover:bg-primary-hover active:scale-[0.98]"
           >
-            Mulai jalan
+            Buka rencana
             <ArrowRight size={17} />
           </button>
         </div>
