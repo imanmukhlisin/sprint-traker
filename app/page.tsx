@@ -14,6 +14,8 @@ import { CuteCompanion } from "@/components/CuteCompanion";
 import { TapDuelModal } from "@/components/TapDuelModal";
 import { DayPickupCard } from "@/components/DayPickupCard";
 import { SplashScreen } from "@/components/SplashScreen";
+import { SharedScheduleBar } from "@/components/SharedScheduleBar";
+import { useSharedItinerary } from "@/lib/use-shared-itinerary";
 import {
   Plus,
   Check,
@@ -28,13 +30,10 @@ import {
 import { getDistanceKm, estimateCoordinates } from "@/lib/geo";
 import { getJogjaHeatAdvisory } from "@/lib/weather";
 
-const STORAGE_KEY = "tata_jogja_schedule_v6";
-const COMPLETED_KEY = "tata_jogja_completed_v6";
-
 export default function HomePage() {
-  const [days, setDays] = useState<DayColumn[]>(initialData as DayColumn[]);
+  const sync = useSharedItinerary(initialData as DayColumn[]);
+  const { days, completedTasks, saveDays, setCompletedTasks } = sync;
   const [activeTab, setActiveTab] = useState<string>("day-1");
-  const [completedTasks, setCompletedTasks] = useState<string[]>([]);
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
 
   // Modals & Drawers
@@ -51,50 +50,11 @@ export default function HomePage() {
   const [isSplashVisible, setIsSplashVisible] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Load from URL or LocalStorage
+  // Keep selection valid when another device changes the shared itinerary.
   useEffect(() => {
-    try {
-      if (typeof window !== "undefined") {
-        const urlParams = new URLSearchParams(window.location.search);
-        const encodedPlan = urlParams.get("plan");
-        if (encodedPlan) {
-          const decoded = JSON.parse(decodeURIComponent(escape(atob(encodedPlan))));
-          if (Array.isArray(decoded) && decoded.length > 0) {
-            setDays(decoded);
-            setActiveTab(decoded[0].dayId);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(decoded));
-            window.history.replaceState({}, document.title, window.location.pathname);
-            return;
-          }
-        }
-      }
-
-      const storedDays = localStorage.getItem(STORAGE_KEY);
-      if (storedDays) {
-        const parsed = JSON.parse(storedDays);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setDays(parsed);
-          setActiveTab(parsed[0].dayId);
-        }
-      }
-
-      const storedCompleted = localStorage.getItem(COMPLETED_KEY);
-      if (storedCompleted) {
-        setCompletedTasks(JSON.parse(storedCompleted));
-      }
-    } catch (e) {
-      console.error("Failed to load data", e);
-    }
-  }, []);
-
-  const saveDays = (newDays: DayColumn[]) => {
-    setDays(newDays);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newDays));
-    } catch (e) {
-      console.error(e);
-    }
-  };
+    if (!days.some((day) => day.dayId === activeTab)) setActiveTab(days[0].dayId);
+    setSelectedTask((task) => task ? days.flatMap((day) => day.tasks).find((item) => item.taskId === task.taskId) || null : null);
+  }, [days, activeTab]);
 
   // Add Day
   const handleAddDay = (dayTitle: string) => {
@@ -151,11 +111,6 @@ export default function HomePage() {
 
     setCompletedTasks((prev) => {
       const next = prev.filter((id) => id !== taskId);
-      try {
-        localStorage.setItem(COMPLETED_KEY, JSON.stringify(next));
-      } catch (err) {
-        console.error(err);
-      }
       return next;
     });
   };
@@ -196,11 +151,6 @@ export default function HomePage() {
       // Unmark
       setCompletedTasks((prev) => {
         const next = prev.filter((id) => id !== taskId);
-        try {
-          localStorage.setItem(COMPLETED_KEY, JSON.stringify(next));
-        } catch (err) {
-          console.error(err);
-        }
         return next;
       });
     } else {
@@ -240,11 +190,6 @@ export default function HomePage() {
     // 2. Add to completed
     setCompletedTasks((prev) => {
       const next = prev.includes(taskId) ? prev : [...prev, taskId];
-      try {
-        localStorage.setItem(COMPLETED_KEY, JSON.stringify(next));
-      } catch (err) {
-        console.error(err);
-      }
       return next;
     });
 
@@ -398,7 +343,7 @@ export default function HomePage() {
 
     try {
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(days))));
-      const shareUrl = `${window.location.origin}${window.location.pathname}?plan=${encoded}`;
+      const shareUrl = sync.shareUrl() || `${window.location.origin}${window.location.pathname}?plan=${encoded}`;
       message += `🔗 *Link Update Bersama:*\n${shareUrl}`;
     } catch {
       // fallback
@@ -411,7 +356,7 @@ export default function HomePage() {
   const handleCopySyncLink = () => {
     try {
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(days))));
-      const shareUrl = `${window.location.origin}${window.location.pathname}?plan=${encoded}`;
+      const shareUrl = sync.shareUrl() || `${window.location.origin}${window.location.pathname}?plan=${encoded}`;
       navigator.clipboard.writeText(shareUrl);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
@@ -537,6 +482,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setIsAddDayOpen(true)}
+              disabled={sync.readOnly}
               className="flex h-8 shrink-0 items-center gap-1 rounded-full border border-dashed border-primary/40 bg-primary/5 px-3 font-space text-xs font-bold text-primary transition-all hover:bg-primary/15 active:scale-95 whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -546,7 +492,10 @@ export default function HomePage() {
         </div>
       </header>
 
+      <SharedScheduleBar sync={sync} />
+
       {/* Board Area */}
+      <fieldset disabled={sync.readOnly} className="m-0 min-w-0 border-0 p-0">
       <section
         ref={scrollContainerRef}
         aria-label="Sprint Board"
@@ -660,6 +609,7 @@ export default function HomePage() {
           </button>
         </div>
       </section>
+      </fieldset>
 
 
 

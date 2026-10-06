@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test:backend": "node --test tests/backend.test.cjs",
     "lint": "next lint"
   },
   "dependencies": {
