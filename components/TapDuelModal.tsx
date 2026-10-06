@@ -1,8 +1,20 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { X, RotateCw, Trophy, Zap, Flame, RefreshCw, Layers } from "lucide-react";
+import { X, RotateCw, Trophy, Zap, Flame, RefreshCw, Layers, Volume2, VolumeX } from "lucide-react";
 import confetti from "canvas-confetti";
+import {
+  playTapSound,
+  playBeepSound,
+  playGoSound,
+  playFoulSound,
+  playRoundWinSound,
+  playVictoryFanfare,
+  playFlipSound,
+  playMatchSound,
+  isSoundMuted,
+  toggleSoundMute,
+} from "@/lib/sound-effects";
 
 interface TapDuelModalProps {
   isOpen: boolean;
@@ -44,8 +56,34 @@ interface MemoryCard {
 }
 
 // Synth sounds using Web Audio API
-// Sound feedback intentionally disabled; visual feedback carries each game state.
-function playSound(_: "beep" | "go" | "win" | "foul" | "tap" | "flip") {}
+function playSound(type: "beep" | "go" | "win" | "foul" | "tap" | "flip" | "match" | "fanfare") {
+  switch (type) {
+    case "tap":
+      playTapSound();
+      break;
+    case "beep":
+      playBeepSound();
+      break;
+    case "go":
+      playGoSound();
+      break;
+    case "foul":
+      playFoulSound();
+      break;
+    case "win":
+      playRoundWinSound();
+      break;
+    case "match":
+      playMatchSound();
+      break;
+    case "fanfare":
+      playVictoryFanfare();
+      break;
+    case "flip":
+      playFlipSound();
+      break;
+  }
+}
 
 export function TapDuelModal({ isOpen, onClose }: TapDuelModalProps) {
   const [mode, setMode] = useState<GameMode>("reaction");
@@ -55,6 +93,17 @@ export function TapDuelModal({ isOpen, onClose }: TapDuelModalProps) {
   const [targetScore] = useState(3); // First to 3 wins match
   const [matchWinner, setMatchWinner] = useState<"Princess" | "Copilot" | "Seri" | null>(null);
   const [punishment, setPunishment] = useState("");
+  const [isMuted, setIsMuted] = useState(false);
+
+  useEffect(() => {
+    setIsMuted(isSoundMuted());
+  }, []);
+
+  const handleToggleMute = () => {
+    const next = toggleSoundMute();
+    setIsMuted(next);
+    if (!next) playTapSound();
+  };
 
   // Mode 1: Reaction state
   const [reactionState, setReactionState] = useState<ReactionState>("waiting");
@@ -163,12 +212,12 @@ export function TapDuelModal({ isOpen, onClose }: TapDuelModalProps) {
     if (mode !== "memory" && !matchWinner) {
       if (princessScore >= targetScore) {
         setMatchWinner("Princess");
-        playSound("win");
+        playSound("fanfare");
         triggerMatchConfetti();
         pickRandomPunishment();
       } else if (copilotScore >= targetScore) {
         setMatchWinner("Copilot");
-        playSound("win");
+        playSound("fanfare");
         triggerMatchConfetti();
         pickRandomPunishment();
       }
@@ -182,17 +231,17 @@ export function TapDuelModal({ isOpen, onClose }: TapDuelModalProps) {
       if (allMatched) {
         if (memoryScores.Princess > memoryScores.Copilot) {
           setMatchWinner("Princess");
-          playSound("win");
+          playSound("fanfare");
           triggerMatchConfetti();
           pickRandomPunishment();
         } else if (memoryScores.Copilot > memoryScores.Princess) {
           setMatchWinner("Copilot");
-          playSound("win");
+          playSound("fanfare");
           triggerMatchConfetti();
           pickRandomPunishment();
         } else {
           setMatchWinner("Seri");
-          playSound("win");
+          playSound("fanfare");
           triggerMatchConfetti();
           setPunishment("Sama-sama jago! Saling peluk & janji hepi terus sepanjang trip 💕");
         }
@@ -343,7 +392,7 @@ export function TapDuelModal({ isOpen, onClose }: TapDuelModalProps) {
 
       if (firstCard.pairId === secondCard.pairId) {
         // MATCH!
-        playSound("win");
+        playSound("match");
         setTimeout(() => {
           newCards[firstIdx].isMatched = true;
           newCards[secondIdx].isMatched = true;
@@ -446,6 +495,19 @@ export function TapDuelModal({ isOpen, onClose }: TapDuelModalProps) {
                 <RotateCw className="w-3.5 h-3.5" />
               </button>
             )}
+
+            <button
+              type="button"
+              onClick={handleToggleMute}
+              className={`p-1.5 rounded-full border transition-all text-xs ${
+                isMuted
+                  ? "bg-red-50 border-red-200 text-red-500"
+                  : "bg-primary/10 border-primary/30 text-primary"
+              }`}
+              title={isMuted ? "Nyalakan Suara Game" : "Matikan Suara Game"}
+            >
+              {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+            </button>
 
             <button
               type="button"

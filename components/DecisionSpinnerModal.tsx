@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { TaskItem } from "@/types/itinerary";
 import { X, Shuffle } from "lucide-react";
 import confetti from "canvas-confetti";
+import { playSpinnerTickSound, playSpinnerWinnerSound } from "@/lib/sound-effects";
 
 interface DecisionSpinnerModalProps {
   isOpen: boolean;
@@ -36,6 +37,7 @@ export function DecisionSpinnerModal({
   const handleSpin = () => {
     if (uncompletedTasks.length <= 1) {
       setWinner(uncompletedTasks[0] || null);
+      playSpinnerWinnerSound();
       return;
     }
 
@@ -47,6 +49,7 @@ export function DecisionSpinnerModal({
     const interval = setInterval(() => {
       const randomIndex = Math.floor(Math.random() * uncompletedTasks.length);
       setDisplayTitle(uncompletedTasks[randomIndex].title);
+      playSpinnerTickSound();
       counter++;
 
       if (counter >= totalSpins) {
@@ -56,6 +59,7 @@ export function DecisionSpinnerModal({
         setDisplayTitle(finalWinner.title);
         setWinner(finalWinner);
         setIsSpinning(false);
+        playSpinnerWinnerSound();
 
         try {
           confetti({
