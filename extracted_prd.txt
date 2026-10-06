@@ -1,0 +1,109 @@
+Product Requirements Document (PRD): Tata's Jogja Sprint Tracker
+
+Document Status: Final (MVP Scope)Author: Iman MukhlisinTarget Platform: Mobile-Web (Responsive)Tech Stack: Next.js, Tailwind CSS, Shadcn UI, Vercel
+
+1. Executive Summary
+
+Tata's Jogja Sprint Tracker adalah inovasi aplikasi web statis bergaya Kanban/Sprint Board yang dirancang khusus sebagai pengganti itinerary konvensional. Produk ini mendigitalkan rencana perjalanan 3 hari (26-28 Oktober) dengan fokus area Kotagede dan sekitarnya. Tujuannya memberikan pengalaman interaktif bagi user (Tata) untuk melihat, melacak, dan menavigasi jadwal kencan layaknya sebuah project management tool.
+
+2. Flow Proses (User Journey)
+
+Karena aplikasi ini statis (tanpa database/backend), alur kerjanya dirancang sangat ringkas:
+
+Generation & Deployment: Developer melakukan hardcode jadwal ke dalam file JSON, lalu deploy ke Vercel. URL aplikasi dikirim via WhatsApp.
+
+Access: User membuka tautan dari smartphone. Tidak memerlukan proses autentikasi (login) atau instalasi aplikasi.
+
+Board Navigation: Layar utama langsung menampilkan Kanban board. User dapat melakukan swipe horizontal antar kolom (Hari 1, Hari 2, Hari 3).
+
+Task Interaction: User menekan salah satu "Tiket/Task Card" (misal: "Strolling Kotagede").
+
+Detail Expansion: Muncul Bottom Sheet / Drawer dari bawah layar yang menampilkan deskripsi lengkap, kategori, jam, dan tombol aksi.
+
+Execution (Routing): User menekan tombol "Open Maps" di dalam drawer, yang otomatis membuka aplikasi Google Maps di HP untuk navigasi langsung ke lokasi.
+
+3. Struktur Tampilan (UI/UX Layout)
+
+Desain diwajibkan Mobile-First dengan tema antarmuka clean dan minimalis.
+
+Header Section:
+
+Judul Aplikasi: "Jogja Sprint: Tata's Edition"
+
+Greeting Text: "Here is your backlog for the next 3 days."
+
+Progress Bar statis (opsional, sekadar estetika menunjukkan durasi 3 hari)
+
+Board Area (Main View):
+
+Terdiri dari 3 kolom utama yang bisa di-scroll menyamping (horizontal scroll).
+
+Setiap kolom mewakili 1 hari (Day 1: 26 Okt, Day 2: 27 Okt, Day 3: 28 Okt).
+
+Card UI (Dalam Kolom):
+
+Tampilan tiket simpel dengan aksen bayangan (drop shadow) halus.
+
+Menampilkan: Jam (pojok kanan atas), Judul Destinasi (Tengah), Badge Kategori (Kiri bawah).
+
+Bottom Drawer (Detail View):
+
+Menggantikan modal pop-up konvensional agar lebih ergonomis dioperasikan dengan satu jari (jempol) pada layar smartphone.
+
+4. Rincian Fitur Utama (MVP)
+
+Sprint Board Rendering: Sistem otomatis mem-parsing data JSON menjadi struktur kolom Kanban berdasarkan urutan hari.
+
+Category Badging: Indikator visual berupa warna badge pada tiket berdasarkan tipe kegiatan (misal: 🟡 Food/Cafe, 🟢 Nature/Hunting, 🔵 Logistics/Rest).
+
+Interactive Task Drawer: Component sheet yang muncul dari bawah layar saat tiket diklik, mengisolasi informasi spesifik dari satu destinasi agar antarmuka tetap rapi.
+
+Direct Maps Integration: Terdapat CTA (Call to Action) di dalam drawer yang menggunakan format URL Universal Google Maps (menghindari error routing eksternal).
+
+"Blank Check" Card: Tipe kartu spesial (digunakan di Hari ke-3) yang sengaja dikosongkan deskripsinya dengan kategori "Tata's Choice" untuk mengakomodasi fleksibilitas request spontan.
+
+5. Fields Isian (Data Structure / JSON Schema)
+
+Seluruh konten ditarik dari array of objects. Berikut adalah fields pasti yang wajib ada di level codebase:
+
+Objek Level Kolom (Day Column)
+
+dayId (String): ID unik untuk sistem (ex: "day-1")
+
+dayTitle (String): Judul kolom (ex: "Day 1 - 26 Oktober")
+
+daySubtitle (String): Konteks hari (ex: "Arrival & Chill")
+
+tasks (Array): Kumpulan objek tempat/destinasi
+
+Objek Level Tiket (Task Card)
+
+taskId (String): ID unik destinasi (ex: "task-101")
+
+title (String): Nama kegiatan atau tempat (ex: "Strolling around Kotagede")
+
+time (String): Jadwal pelaksanaan (ex: "16:00 WIB" atau "Flexible")
+
+category (String): Label kategori untuk Badge (ex: "Hunting", "Food", "Logistics", "Tata's Choice")
+
+description (String): Catatan/alasan spesifik (ex: "Sesuai request dari kemaren pengen hunting di sini")
+
+mapsUrl (String): Tautan valid Google Maps. Jika kosong, tombol Maps akan otomatis disembunyikan.
+
+imageCover (String, Optional): URL gambar estetis tempat tersebut untuk di-render di dalam Drawer.
+
+6. Action Plan Eksekusi (Developer Checklist)
+
+Inisialisasi repository Next.js baru (npx create-next-app@latest)
+
+Instalasi Tailwind CSS dan komponen Shadcn UI (Card, Badge, Drawer/Sheet, Button)
+
+Pembuatan struktur direktori data statis (data/itinerary.json) sesuai skema fields
+
+Mapping data JSON ke komponen React (Gunakan flex-row dan overflow-x-auto untuk Kanban layout)
+
+Commit dan Push ke GitHub
+
+Deploy project ke Vercel
+
+Distribusi URL deployment ke target user
