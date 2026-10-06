@@ -59,7 +59,7 @@ export function SharedScheduleBar({ sync }: { sync: ReturnType<typeof useSharedI
             </>
           ) : (
             <>
-              <p className="leading-relaxed text-text-muted">Kirim link ini ke Tata. Perubahan diperbarui setiap beberapa detik saat halaman terbuka. Pemegang link juga dapat mengedit.</p>
+              <p className="leading-relaxed text-text-muted">Bagikan link ini ke pasanganmu. Perubahan diperbarui setiap beberapa detik saat halaman terbuka. Pemegang link juga dapat melihat dan mengedit bersama.</p>
               <div className="mt-3 flex gap-2">
                 <input readOnly aria-label="Link jadwal bersama" value={url || ""} onFocus={(event) => event.target.select()}
                   className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-xs" />
